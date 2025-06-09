@@ -1,59 +1,46 @@
 {
     "layer": "top", // Waybar at top layer
-    // "position": "bottom", // Waybar position (top|bottom|left|right)
     "height": 35, // Waybar height (to be removed for auto height)
     // "width": 1280, // Waybar width
     "spacing": 4, // Gaps between modules (4px)
+    
     // Choose the order of the modules
     "modules-left": ["clock", "custom/weather"],
     "modules-center": ["hyprland/workspaces"],
-    "modules-right": ["custom/spotify", "tray"],
+    "modules-right": ["custom/spotify"],
+    
     // Modules configuration
-    "tray": {
-        // "icon-size": 15,
-        // "spacing": 10
-    },
-
     "hyprland:workspaces": {
-        "format": "<sub>{icon}</sub>\n{windows}",
-        "format-window-separator": "\n",
-        "window-rewrite-default": "",
-        "window-rewrite": {
-        "firefox": "",
-        "foot": "",
-        "code": "󰨞",
-
-        }
-
+  	"format": "<sub>{icon}</sub>\n{windows}",
+  	"format-window-separator": "\n",
     },
-
-
 
     "custom/weather": {
-        "exec": "python ~/.config/waybar/weather.py",
-        "restart-interval": 300,
-        "return-type": "json",
-        "on-click": "xdg-open https://weather.com/en-IN/weather/today/l/$(location_id)"
+    	"exec": "python ~/.config/waybar/weather.py",
+    	"restart-interval": 300,
+    	"return-type": "json",
+    	"on-click": "xdg-open https://weather.com/en-IN/weather/today/l/$(location_id)"
     },
-
+    
     "custom/spotify": {
-        "format": "{}",
-        "escape": true,
-        "return-type": "json",
-        "max-length": 40,
-        "on-click": "playerctl -p spotify play-pause",
-        "on-click-right": "killall spotify",
-        "smooth-scrolling-threshold": 7,
-        "on-scroll-up" : "playerctl -p spotify next",
-        "on-scroll-down" : "playerctl -p spotify previous",
-        "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null", // Script in resources/custom_modules folder
-        "exec-if": "pgrep spotify"
-},
+    	"format": "{}",
+    	"escape": true,
+    	"return-type": "json",
+    	"max-length": 30,
+    	"on-click": "playerctl -p spotify play-pause",
+   	"on-click-right": "killall spotify",
+    	"smooth-scrolling-threshold": 5, 
+    	"on-scroll-up" : "playerctl -p spotify next",
+    	"on-scroll-down" : "playerctl -p spotify previous",
+    	"exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null", // Script in resources/custom_modules folder
+	"exec-if": "pgrep spotify"
+    },
 
 
     "clock": {
         "format": "📅 {:%b %d, %I:%M %p}",
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format-alt": "📅"
+        "format-alt": "📅",
     },
 }
+

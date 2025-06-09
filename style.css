@@ -6,7 +6,7 @@
     font-weight: 700;
     color: #f0f0f0;
     */
-    font-family: FontAwesome,"Fira Code", "Noto Sans", sans-serif ;
+    font-family: "FontAwesome", "Noto Sans", "sans-serif" ;
     font-size: 14px;
 }
 
@@ -54,7 +54,6 @@ button:hover {
     border-bottom: 3px solid #ffffff;
 }
 
-#window,
 #workspaces {
     margin: 0 4px;
 }
