@@ -1,13 +1,14 @@
 * {
     /* `otf-font-awesome` is required to be installed for icons */
-    /*
+    
     font-family: FontAwesome, Roboto, Helvetica, Arial, sans-serif, 'JetBrainsMono Nerd Font';
     font-size: 14px;
     font-weight: 700;
     color: #f0f0f0;
-    */
+    /*
     font-family: "FontAwesome", "Noto Sans", "sans-serif" ;
     font-size: 14px;
+    */
 }
 
 window#waybar {
