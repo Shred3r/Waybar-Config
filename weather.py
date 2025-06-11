@@ -21,8 +21,9 @@ weather_icons = {
 # get location_id
 # to get your own location_id, go to https://weather.com & search your location.
 # once you choose your location, you can see the location_id in the URL(64 chars long hex string)
-
-location_id = ""  
+# like this: https://weather.com/en-IN/weather/today/l/c3e96d6cc4965fc54f88296b54449571c4107c73b9638c16aafc83575b4ddf2e
+location_id = "813484e1eedc397652ea9ba6bf441f3a70394bd52e3b76ea27e71b7487fa11d9"  # TODO
+# location_id = "8139363e05edb302e2d8be35101e400084eadcecdfce5507e77d832ac0fa57ae"
 
 # priv_env_cmd = 'cat $PRIV_ENV_FILE | grep weather_location | cut -d "=" -f 2'
 # location_id = subprocess.run(
@@ -31,7 +32,6 @@ location_id = ""
 # get html page
 url = "https://weather.com/en-IN/weather/today/l/" + location_id
 html_data = PyQuery(url=url)
-print(url)
 
 # current temperature
 temp = html_data("span[data-testid='TemperatureValue']").eq(0).text()
@@ -41,7 +41,7 @@ temp = str(int(FTemp)) + "°"
 # current status phrase
 status = html_data("div[data-testid='wxPhrase']").text()
 status = f"{status[:16]}.." if len(status) > 17 else status
-print(status)
+# print(status)
 
 # status code
 status_code = html_data("#regionHeader").attr("class").split(" ")[2].split("-")[2]
@@ -93,14 +93,14 @@ temp_min_max = f"  {ftemp_min}\t  {ftemp_max}"
 # print(temp_min_max)
 
 # wind speed
-#wind_speed = html_data("span[data-testid='Wind']").text().split("\n")[1]
-#wind_text = f"༄ {wind_speed}"
-# print(wind_text)
+wind_speed = html_data("span[data-testid='Wind']").text().split("\n")[0]
+wind_text = f"༄ {wind_speed}"
+print(wind_text)
 
 # humidity
 humidity = html_data("span[data-testid='PercentageValue']").text()
 humidity_text = f"  {humidity}"
-# print(humidity_text)
+print(humidity_text)
 
 # visibility
 visbility = html_data("span[data-testid='VisibilityValue']").text()
@@ -116,24 +116,25 @@ prediction = html_data("section[aria-label='Hourly Forecast']")(
     "div[data-testid='SegmentPrecipPercentage'] > span"
 ).text()
 prediction = prediction.replace("Rain drop Chance of Rain", "")
-prediction = f"\n\n    {prediction}" if len(prediction) > 0 else prediction
+prediction = f"\n\n    (hourly) {prediction}" if len(prediction) > 0 else prediction
 # print(prediction)
 
 # tooltip text
 tooltip_text = str.format(
-    "{}\n{}\n{}\n\n{}\n{}{}",
+    "\t\t{}\t\t\n{}\n{}\n{}\n\n{}\n{}\n{}{}",
     f'<span size="xx-large">{temp}</span>',
+    f"<big>{icon}</big>",
     f"<big>{status}</big>",
     f"<small>{temp_feel_text}</small>",
     f"<big>{temp_min_max}</big>",
-    #f"{wind_text}\t{humidity_text}",
+    f"{wind_text}\t{humidity_text}",
     f"{visbility_text}\tAQI {air_quality_index}",
     f"<i>{prediction}</i>",
 )
 
 # print waybar module data
 out_data = {
-    "text": f"<big>{icon}</big>  {temp}",
+    "text": f"{icon} {temp}",
     "alt": status,
     "tooltip": tooltip_text,
     "class": status_code,
