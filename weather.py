@@ -81,12 +81,12 @@ temp_min_max = f"  {temp_min}\t  {temp_max}"
 # print(temp_min_max)
 
 # wind speed
-#wind_speed = html_data("span[data-testid='Wind']").text().split("\n")[1]
-#wind_text = f"༄ {wind_speed}"
-# print(wind_text)
+wind_speed = html_data("span[data-testid='Wind'] > span").eq(1).text()
+wind_text = f"༄ {wind_speed} MPH"
+print(wind_text)
 
 # humidity
-humidity = html_data("span[data-testid='PercentageValue']").text()
+humidity = html_data("span[data-testid='PercentageValue']").eq(1).text()
 humidity_text = f"  {humidity}"
 # print(humidity_text)
 
@@ -100,21 +100,22 @@ air_quality_index = html_data("text[data-testid='DonutChartValue']").text()
 # print(air_quality_index)
 
 # hourly rain prediction
-prediction = html_data("section[aria-label='Hourly Forecast']")(
-    "div[data-testid='SegmentPrecipPercentage'] > span"
-).text()
-prediction = prediction.replace("Rain drop Chance of Rain", "")
-prediction = f"\n\n    {prediction}" if len(prediction) > 0 else prediction
-# print(prediction)
+prediction = html_data("[data-testid='Precip']").text()
+prediction = prediction.replace("Rain drop", "").split()[:5]
+print(prediction)
+seperator = ', '
+prediction = seperator.join(prediction)
+prediction = f"\n    {prediction}" if len(prediction) > 0 else prediction
+print(prediction)
 
 # tooltip text
 tooltip_text = str.format(
-    "{}\n{}\n{}\n\n{}\n{}{}",
+    "{}\n{}\n{}\n\n{}\n{}\n{}\n{}",
     f'<span size="xx-large">{temp}</span>',
     f"<big>{status}</big>",
     f"<small>{temp_feel_text}</small>",
     f"<big>{temp_min_max}</big>",
-    #f"{wind_text}\t{humidity_text}",
+    f"{wind_text}\t{humidity_text}",
     f"{visbility_text}\tAQI {air_quality_index}",
     f"<i>{prediction}</i>",
 )

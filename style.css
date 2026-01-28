@@ -154,6 +154,11 @@ label:focus {
     color: #F5B971;
 }
 
+
+#custom-weather.fair {
+    color: #FDDAA0;
+}
+
 #custom-weather.clear {
     color: #B7D2DA;
 }
