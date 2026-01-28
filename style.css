@@ -1,14 +1,13 @@
 * {
     /* `otf-font-awesome` is required to be installed for icons */
-    
+    /*
     font-family: FontAwesome, Roboto, Helvetica, Arial, sans-serif, 'JetBrainsMono Nerd Font';
     font-size: 14px;
     font-weight: 700;
     color: #f0f0f0;
-    /*
+    */
     font-family: "FontAwesome", "Noto Sans", "sans-serif" ;
     font-size: 14px;
-    */
 }
 
 window#waybar {
@@ -84,15 +83,13 @@ button:hover {
 
 }
 #battery {
-    border: 2px solid rgba(51, 102, 153, 0.5);
-    background-color: black;
-    border-radius: 20px;
-    color: white;
-    padding: 6px;
+    background-color: #ffffff;
+    color: #000000;
 }
 
 #battery.charging, #battery.plugged {
-    color: #26A65B; 
+    color: #ffffff;
+    background-color: #26A65B;
 }
 
 @keyframes blink {
@@ -103,7 +100,8 @@ button:hover {
 }
 
 #battery.critical:not(.charging) {
-    color: #f53c3c;
+    background-color: #f53c3c;
+    color: #ffffff;
     animation-name: blink;
     animation-duration: 0.5s;
     animation-timing-function: linear;
@@ -121,6 +119,7 @@ label:focus {
 	color: #1ED760;
 	background-color: black;
 	padding: 6px;
+
 }
 
 #temperature {
@@ -151,26 +150,26 @@ label:focus {
     color: #eb937d;
 }
 
-#custom-weather.sunnyDay {
+#custom-weather.sunny {
     color: #F5B971;
 }
 
-#custom-weather.clearNight {
+#custom-weather.clear {
     color: #B7D2DA;
 }
 
-#custom-weather.cloudyFoggyDay, #custom-weather.cloudyFoggyNight {
+#custom-weather.cloudy, #custom-weather.cloudyFoggyNight {
     color: #c2ddda;
 }
 
-#custom-weather.rainyDay, #custom-weather.rainyNight {
+#custom-weather.rainy, #custom-weather.rainyNight {
     color: #5aaca5;
 }
 
-#custom-weather.showyIcyDay, #custom-weather.snowyIcyNight {
+#custom-weather.snowy, #custom-weather.snowyIcyNight {
     color: #d6e7e5;
 }
 
 #custom-weather.default {
-    color: #dbd9d8;
+    color: #FFF9E0;
 }
