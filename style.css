@@ -83,13 +83,16 @@ button:hover {
 
 }
 #battery {
-    background-color: #ffffff;
-    color: #000000;
+    border: 2px solid rgba(51, 102, 153, 0.5);
+    background-color: black;
+    border-radius: 20px;
+    color: white;
+    padding: 6px;
 }
 
 #battery.charging, #battery.plugged {
-    color: #ffffff;
-    background-color: #26A65B;
+    color: #26A65B; 
+
 }
 
 @keyframes blink {
@@ -100,8 +103,7 @@ button:hover {
 }
 
 #battery.critical:not(.charging) {
-    background-color: #f53c3c;
-    color: #ffffff;
+    color: #f53c3c;
     animation-name: blink;
     animation-duration: 0.5s;
     animation-timing-function: linear;
