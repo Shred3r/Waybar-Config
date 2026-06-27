@@ -1,130 +1,116 @@
 #!/usr/bin/env python
 
-import subprocess
-from pyquery import PyQuery  # install using `pip install pyquery`
+import requests
 import json
+import sys
 
-# weather icons
+# Weather icons
 weather_icons = {
     "sunny": "🔆",
-    #"clearNight": "☾",
     "cloudy": "",
-    #"cloudyFoggyNight": "",
     "rainy": "",
-    #"rainyNight": "",
     "snowy": "❄",
-    #"snowyIcyNight": "",
     "fair": "🌤️", 
     "severe": "",
     "default": "",
 }
 
-# get location_id
-# to get your own location_id, go to https://weather.com & search your location.
-# once you choose your location, you can see the location_id in the URL(64 chars long hex string)
+# Location coordinates (Defaulted to Tucson, AZ)
+# You can change these to any latitude/longitude
+LATITUDE = 32.2226
+LONGITUDE = -110.9747
 
-location_id = "4814d18dab305c056be0263beaefdbed8e5b5a486c3ca00d354df34df353fede"  
+# Open-Meteo API URLs
+WEATHER_URL = f"https://api.open-meteo.com/v1/forecast?latitude={LATITUDE}&longitude={LONGITUDE}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,visibility&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto"
+AQI_URL = f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={LATITUDE}&longitude={LONGITUDE}&current=us_aqi"
 
-# priv_env_cmd = 'cat $PRIV_ENV_FILE | grep weather_location | cut -d "=" -f 2'
-# location_id = subprocess.run(
-#     priv_env_cmd, shell=True, capture_output=True).stdout.decode('utf8').strip()
+def get_weather_status(wmo_code):
+    """Maps standard WMO codes to your status phrases and icons."""
+    if wmo_code == 0:
+        return "Clear sky", "sunny", weather_icons["sunny"]
+    elif wmo_code in [1, 2]:
+        return "Mainly clear", "fair", weather_icons["fair"]
+    elif wmo_code == 3:
+        return "Overcast", "cloudy", weather_icons["cloudy"]
+    elif wmo_code in [45, 48]:
+        return "Fog", "cloudy", weather_icons["cloudy"]
+    elif wmo_code in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82]:
+        return "Rainy", "rainy", weather_icons["rainy"]
+    elif wmo_code in [71, 73, 75, 77, 85, 86]:
+        return "Snowy", "snowy", weather_icons["snowy"]
+    elif wmo_code in [95, 96, 99]:
+        return "Thunderstorm", "severe", weather_icons["severe"]
+    else:
+        return "Unknown", "default", weather_icons["default"]
 
-# get html page
-url = "https://weather.com/en-US/weather/today/l/" + location_id
-html_data = PyQuery(url=url)
-print(url)
+try:
+    # Fetch weather and AQI data
+    weather_resp = requests.get(WEATHER_URL)
+    aqi_resp = requests.get(AQI_URL)
+    
+    weather_resp.raise_for_status()
+    aqi_resp.raise_for_status()
+    
+    weather_data = weather_resp.json()
+    aqi_data = aqi_resp.json()
 
-# current temperature
-temp = html_data("span[data-testid='TemperatureValue']").eq(0).text()
-print(temp)
+    current = weather_data["current"]
+    daily = weather_data["daily"]
 
-# current status phrase
-status = html_data("div[data-testid='wxPhrase']").text()
-status = (f"{status[:16]}.." if len(status) > 17 else status)
-print(status)
+    # Map current conditions
+    temp = f"{round(current['temperature_2m'])}°F"
+    temp_feel = f"Feels like {round(current['apparent_temperature'])}°F"
+    
+    status, status_class, icon = get_weather_status(current['weather_code'])
+    
+    wind_text = f"༄ {round(current['wind_speed_10m'])} MPH"
+    humidity_text = f"  {current['relative_humidity_2m']}%"
+    
+    # Open-Meteo visibility is in meters; converting to miles
+    vis_miles = round(current['visibility'] / 1609.34, 1)
+    visibility_text = f"  {vis_miles} mi"
 
-status_Icon = status.split()[-1].lower()
-print(status_Icon)
+    # Air Quality
+    air_quality_index = aqi_data["current"]["us_aqi"]
 
-# status icon
-icon = (
-    weather_icons[status_Icon]
-    if status_Icon in weather_icons
-    else weather_icons["default"]
-)
-# print(icon)
+    # Min/Max temps (taking today's forecast at index 0)
+    temp_max = f"{round(daily['temperature_2m_max'][0])}°F"
+    temp_min = f"{round(daily['temperature_2m_min'][0])}°F"
+    temp_min_max = f"  {temp_min}\t  {temp_max}"
 
-# temperature feels like
-temp_feel = html_data(
-    "div[data-testid='FeelsLikeSection'] > span > span[data-testid='TemperatureValue']"
-).text()
+    # Precipitation
+    precip = current['precipitation']
+    prediction = f"\n    {precip} in" if precip > 0 else ""
 
-temp_feel_text = f"Feels like {temp_feel}f"
-# print(temp_feel_text)
+    # Build the tooltip
+    tooltip_text = str.format(
+        "{}\n{}\n{}\n\n{}\n{}\t{}\n{}\tAQI {}{}",
+        f'<span size="xx-large">{temp}</span>',
+        f"<big>{status}</big>",
+        f"<small>{temp_feel}</small>",
+        f"<big>{temp_min_max}</big>",
+        wind_text, humidity_text,
+        visibility_text, air_quality_index,
+        prediction
+    )
 
-# min-max temperature
-temp_min = (
-    html_data("div[data-testid='wxData'] > span[data-testid='TemperatureValue']")
-    .eq(1)
-    .text()
-)
+    # Output for Waybar
+    out_data = {
+        "text": f"<big>{icon}</big>  {temp}",
+        "alt": status,
+        "tooltip": tooltip_text,
+        "class": status_class,
+    }
+    
+    print(json.dumps(out_data))
 
-temp_max = (
-    html_data("div[data-testid='wxData'] > span[data-testid='TemperatureValue']")
-    .eq(0)
-    .text()
-)
-
-#CAN WRITE AN IF STATEMENT TO MANUALLY IDENTIFY HIGH AFTER EACH TIME THIS IS RAN,
-#IN THE MEANTIME THIS IS BROKEN UNLESS THE WEBSITE UPDATES A HIGH
-temp_min_max = f"  {temp_min}\t  {temp_max}"
-# print(temp_min_max)
-
-# wind speed
-wind_speed = html_data("span[data-testid='Wind'] > span").eq(1).text()
-wind_text = f"༄ {wind_speed} MPH"
-print(wind_text)
-
-# humidity
-humidity = html_data("span[data-testid='PercentageValue']").eq(1).text()
-humidity_text = f"  {humidity}"
-# print(humidity_text)
-
-# visibility
-visbility = html_data("span[data-testid='VisibilityValue']").text()
-visbility_text = f"  {visbility}"
-# print(visbility_text)
-
-# air quality index
-air_quality_index = html_data("text[data-testid='DonutChartValue']").text()
-# print(air_quality_index)
-
-# hourly rain prediction
-prediction = html_data("[data-testid='Precip']").text()
-prediction = prediction.replace("Rain drop", "").split()[:5]
-print(prediction)
-seperator = ', '
-prediction = seperator.join(prediction)
-prediction = f"\n    {prediction}" if len(prediction) > 0 else prediction
-print(prediction)
-
-# tooltip text
-tooltip_text = str.format(
-    "{}\n{}\n{}\n\n{}\n{}\n{}\n{}",
-    f'<span size="xx-large">{temp}</span>',
-    f"<big>{status}</big>",
-    f"<small>{temp_feel_text}</small>",
-    f"<big>{temp_min_max}</big>",
-    f"{wind_text}\t{humidity_text}",
-    f"{visbility_text}\tAQI {air_quality_index}",
-    f"<i>{prediction}</i>",
-)
-
-# print waybar module data
-out_data = {
-    "text": f"<big>{icon}</big>  {temp}",
-    "alt": status,
-    "tooltip": tooltip_text,
-    "class": status_Icon,
-}
-print(json.dumps(out_data))
+except Exception as e:
+    # Failsafe so Waybar doesn't crash on network loss
+    error_data = {
+        "text": "Disconnected",
+        "alt": "Offline",
+        "tooltip": f"Error fetching weather: {str(e)}",
+        "class": "error"
+    }
+    print(json.dumps(error_data))
+    sys.exit(1)
