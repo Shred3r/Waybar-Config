@@ -42,8 +42,14 @@ class PlayerManager:
         for player in self.manager.props.player_names:
             if self.selected_player is not None and self.selected_player != player.name:
                 logger.debug(f"{player.name} is not the filtered player, skipping it")
-                continue
-            self.init_player(player)
+
+            
+            if player.name == "spotify":
+                self.init_player(player)
+
+            else:
+                break
+
 
     def run(self):
         logger.info("Starting main loop")
@@ -169,6 +175,8 @@ def main():
         logger.info(f"Filtering for player: {arguments.player}")
     player = PlayerManager(arguments.player)
     player.run()
+
+    return player.name
 
 
 if __name__ == "__main__":

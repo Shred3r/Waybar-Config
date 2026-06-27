@@ -7,7 +7,7 @@
     // Choose the order of the modules
     "modules-left": ["clock", "custom/weather"],
     "modules-center": ["hyprland/workspaces"],
-    "modules-right": ["custom/spotify", "battery"],
+    "modules-right": ["custom/spotify"],
     
     // Modules configuration
     "hyprland:workspaces": {
@@ -15,23 +15,11 @@
   	"format-window-separator": "\n",
     },
 
-    "battery": {
-        "bat": "BAT1",
-        "interval": 60,
-        "states": {
-            "warning": 30,
-            "critical": 15
-        },
-        "format": "{capacity}% {icon} ",
-        "format-icons": ["", "", "", "", ""],
-        "max-length": 30
-    },
-
     "custom/weather": {
     	"exec": "python ~/.config/waybar/weather.py",
     	"restart-interval": 300,
     	"return-type": "json",
-    	"on-click": "xdg-open https://weather.com/en-IN/weather/today/l/$(location_id)"
+    	"on-click": "xdg-open https://weather.com/en-IN/weather/today/l/4814d18dab305c056be0263beaefdbed8e5b5a486c3ca00d354df34df353fede"
     },
     
     "custom/spotify": {
@@ -44,14 +32,14 @@
     	"smooth-scrolling-threshold": 5, 
     	"on-scroll-up" : "playerctl -p spotify next",
     	"on-scroll-down" : "playerctl -p spotify previous",
-    	"exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null", // Script in resources/custom_modules folder
-	"exec-if": "pgrep spotify"
+	"exec-if" : "pgrep spotify == true",
+    	"exec" : "$HOME/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources/custom_modules folder
     },
 
 
     "clock": {
-        "format": "📅 {:%I:%M %p}",
-        "tooltip-format": "<big>{:%Y %B %d}</big>\n<tt><small>{calendar}</small></tt>",
+        "format": "📅 {:%b %d, %I:%M %p}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "format-alt": "📅",
     },
 }
